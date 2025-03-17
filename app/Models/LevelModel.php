@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LevelModel extends Model
 {
     protected $table = 'm_level'; // Ganti dengan nama tabel yang benar di database
-
-    public function user(): BelongsTo
+    protected $primaryKey = 'level_id';
+    protected $fillable = ['level_id', 'level_kode', 'level_nama'];
+    
+    public function users()
     {
-        return $this->belongsTo(UserModel::class);
+        return $this->hasMany(UserModel::class, 'level_id', 'level_id');
     }
 }
