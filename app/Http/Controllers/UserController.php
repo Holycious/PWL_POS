@@ -32,8 +32,7 @@ class UserController extends Controller
     }
     public function list(Request $request)
     {
-        $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
-            ->with('level');
+        $users = UserModel::select('user_id', 'username', 'nama', 'level_id')->with('level');
         // Filter data user berdasarkan level_id
         if ($request->level_id) {
             $users->where('level_id', $request->level_id);
@@ -184,4 +183,41 @@ class UserController extends Controller
 
         return view('user.edit_ajax', ['user' => $user, 'level' => $level]);
     }
+
+    public function update_ajax(Request $request, $id)
+     {
+         if ($request->ajax() || $request->wantsJson()) {
+             $rules = [
+                 'level_id' => 'required|integer',
+                 'username' => 'required|max:20|unique:m_user,username,' . $id . ',user_id',
+                 'nama'     => 'required|max:100',
+                 'password' => 'nullable|min:6|max:20'
+             ];     
+             $validator = Validator::make($request->all(), $rules);
+             if ($validator->fails()) {
+                 return response()->json([
+                     'status'   => false,
+                     'message'  => 'Validasi gagal.',
+                     'msgField' => $validator->errors()
+                 ]);
+             }
+             $check = UserModel::find($id);
+             if ($check) {
+                 if (!$request->filled('password')) {
+                     $request->request->remove('password');
+                 }
+                 $check->update($request->all());
+                 return response()->json([
+                     'status' => true,
+                     'message' => 'Data berhasil diupdate'
+                 ]);
+             } else {
+                 return response()->json([
+                     'status' => false,
+                     'message' => 'Data tidak ditemukan'
+                 ]);
+             }
+         }
+         return redirect('/');
+     }
 }
