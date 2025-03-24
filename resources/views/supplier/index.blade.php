@@ -5,8 +5,8 @@
         <div class="card-header">
             <h3 class="card-title">{{ $page->title }}</h3>
             <div class="card-tools">
-                <a class="btn btn-sm btn-primary mt-1" href="{{ url('level/create') }}">Tambah</a>
-                <button onclick="modalAction('{{ url('level/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah
+                <a class="btn btn-sm btn-primary mt-1" href="{{ url('supplier/create') }}">Tambah</a>
+                <button onclick="modalAction('{{ url('supplier/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah
                     Ajax</button>
             </div>
         </div>
@@ -17,12 +17,13 @@
             @if (session('error'))
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
-            <table class="table table-bordered table-striped table-hover table-sm" id="table_level">
+            <table class="table table-bordered table-striped table-hover table-sm" id="table_supplier">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Kode</th>
                         <th>Nama</th>
+                        <th>Alamat</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -45,13 +46,13 @@
             });
         }
 
-        var dataLevel;
+        var dataSupplier;
         $(document).ready(function() {
-            dataLevel = $('#table_level').DataTable({
+            dataSupplier = $('#table_supplier').DataTable({
                 // serverSide: true, jika ingin menggunakan server side processing
                 serverSide: true,
                 ajax: {
-                    "url": "{{ url('level/list') }}",
+                    "url": "{{ url('supplier/list') }}",
                     "dataType": "json",
                     "type": "POST",
                 },
@@ -64,14 +65,21 @@
                     },
 
                     {
-                        data: "level_kode",
+                        data: "supplier_kode",
                         className: "",
                         orderable: true,
                         searchable: true
                     },
 
                     {
-                        data: "level_nama",
+                        data: "supplier_nama",
+                        className: "",
+                        orderable: true,
+                        searchable: true
+                    },
+
+                    {
+                        data: "alamat",
                         className: "",
                         orderable: true,
                         searchable: true
