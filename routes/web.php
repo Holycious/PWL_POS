@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\UserController;
@@ -122,3 +123,13 @@ Route::prefix('stok')->group(function () {
     Route::put('/{id}', [StokController::class, 'update']);
     Route::delete('/{id}', [StokController::class, 'destroy']);
 });
+
+Route::pattern('id', '[0-9]+');
+ 
+ Route::get('login', [AuthController::class,'login'])->name('login');
+ Route::post('login', [AuthController::class,'postlogin']);
+ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+ 
+ Route::middleware(['auth'])->group(function () {
+     Route::get('/', [WelcomeController::class, 'index']);
+ });
