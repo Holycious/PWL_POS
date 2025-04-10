@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [WelcomeController::class, 'index']);
-
 Route::group(['prefix' => 'user'], function(){
     Route::get('/', [UserController::class,'index']);
     Route::post('/list', [UserController::class,'list']);
