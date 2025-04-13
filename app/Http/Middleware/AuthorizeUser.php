@@ -13,11 +13,11 @@ class AuthorizeUser
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, $role=''): Response
        {
-           $user_role = $request->user()->getRole();
+           $user = $request->user();
            
-           if (in_array($user_role, $roles)) {
+           if ($user->hasRole($role)) {
                return $next($request);
            }
 
