@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Models\LevelModel;
 use App\Models\UserModel;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
+
 
 class AuthController extends Controller
 {
@@ -16,32 +20,35 @@ class AuthController extends Controller
         }
         return view('auth.login');
     }
-
-    public function register()
+    public function showRegisterForm()
     {
-        $levels = LevelModel::all(); // ambil level dari database
-        return view('auth.register', compact('levels'));
+        $level = LevelModel::select('level_id', 'level_nama')->get();
+        return view('auth.register', compact('level'));
     }
-
-    public function postregister(Request $request)
+    public function store_register(Request $request)
     {
-        $request->validate([
-            'nama' => 'required|string|max:100',
-            'username' => 'required|string|max:20|unique:m_user,username',
-            'password' => 'required|string|min:6|confirmed',
-            'level_id' => 'required|exists:m_level,level_id',
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|min:3|unique:m_user,username',
+            'nama'     => 'required|string|max:100',
+            'password' => 'required|string|min:6',
+            'level_id' => 'required|integer'
         ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
 
         UserModel::create([
-            'nama' => $request->nama,
             'username' => $request->username,
-            'password' => $request->password, // auto-hash
-            'level_id' => $request->level_id,
+            'nama'     => $request->nama,
+            'password' => Hash::make($request->password),
+            'level_id' => $request->level_id
         ]);
 
-        return redirect('login')->with('success', 'Pendaftaran berhasil! Silakan login.');
+        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
     }
-    
+
+
     public function postlogin(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -50,7 +57,7 @@ class AuthController extends Controller
             if (Auth::attempt($credentials)) {
                 return response()->json([
                     'status' => true,
-                    'message' => 'Login Berhasil',
+                    'message' => 'Login berhasil',
                     'redirect' => url('/')
                 ]);
             }
@@ -72,6 +79,4 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect('login');
     }
-
-
 }

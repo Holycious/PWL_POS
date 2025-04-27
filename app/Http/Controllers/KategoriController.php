@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\KategoriModel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -41,7 +42,7 @@ class KategoriController extends Controller
             // $btn .= '<form class="d-inline-block" method="POST" action="' . url('/kategori/' . $kategori->kategori_id) . '">' . csrf_field() . method_field('DELETE') .
             //     '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakit menghapus data ini?\');">Hapus</button></form>';
 
-            $btn  = '<button onclick="modalAction(\'' . url('/kategori/' . $kategori->kategori_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+            $btn = '<a href="' . url('/kategori/' . $kategori->kategori_id) . '" class="btn btn-info btn-sm">Detail</a> ';
             $btn .= '<button onclick="modalAction(\'' . url('/kategori/' . $kategori->kategori_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
             $btn .= '<button onclick="modalAction(\'' . url('/kategori/' . $kategori->kategori_id . '/delete_ajax') . '\')"  class="btn btn-danger btn-sm">Hapus</button> ';
             return $btn;
@@ -362,4 +363,21 @@ class KategoriController extends Controller
         $writer->save('php://output');
         exit;
     }
+
+    public function export_pdf()
+     {
+         $kategori = KategoriModel::select('kategori_kode', 'kategori_nama')
+             // ->orderBy('kategori_id')
+             // ->orderBy('barang_kode')
+             // ->with('kategori')
+             ->get();
+ 
+         // use Barryvdh\DomPDF\Facade\Pdf;
+         $pdf = Pdf::loadView('kategori.export_pdf', ['kategori' => $kategori]);
+         $pdf->setPaper('a4', 'portrait'); // set ukuran kertas dan orientasi
+         $pdf->setOption("isRemoteEnabled", true); // set true jika ada gambar dari url
+         $pdf->render();
+ 
+         return $pdf->stream('Data Kategori ' . date('Y-m-d H:i:s') . '.pdf');
+     }
 }
